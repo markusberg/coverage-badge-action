@@ -7,6 +7,12 @@ branding:
   icon: check-circle
   color: green
 
+inputs:
+  version:
+    description: Version string will be appended to the badge filename
+    required: false
+    type: string
+
 runs:
   using: composite
   steps:
@@ -18,7 +24,7 @@ runs:
         echo "coverage=$COV" >> $GITHUB_OUTPUT
 
     - name: Checkout gh-pages
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: gh-pages
 
@@ -29,10 +35,10 @@ runs:
         export COV=${{ steps.get-values.outputs.coverage }}
         COLOR=$(node -p '+process.env.COV >= 95 ? `green` : `orange`')
         mkdir -p badges
-        badgen -j coverage -s $COV% -c $COLOR > badges/coverage.svg
+        badgen -j coverage -s $COV% -c $COLOR > badges/coverage${{ inputs.version && format('-{0}', inputs.version) }}.svg
 
     - name: Deploy Badges
-      uses: stefanzweifel/git-auto-commit-action@v4
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
         commit_message: "Update badges [skip ci]"
         branch: gh-pages
@@ -43,6 +49,6 @@ runs:
     # Can't find 'action.yml', 'action.yaml' or 'Dockerfile' under '/home/runner/work/coverage-badge-action/coverage-badge-action/action.yml'.
     # Did you forget to run actions/checkout before running your local action?
     - name: Checkout Back
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ github.ref }}
