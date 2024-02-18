@@ -16,31 +16,38 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Get Values
-      id: get-values
+    - name: Get coverage
+      id: coverage
       shell: bash
       run: |
-        COV=$(node -p 't=require(`./coverage/coverage-summary.json`).total,Math.min(...`lines|statements|functions|branches`.split(`|`).map(k=>t[k].pct))')
-        echo "coverage=$COV" >> $GITHUB_OUTPUT
+        COVERAGE=$(node -p 't=require(`./coverage/coverage-summary.json`).total,Math.min(...`lines|statements|functions|branches`.split(`|`).map(k=>t[k].pct))')
+        echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
+
+    - name: Get color
+      id: color
+      shell: bash
+      run: |
+        COLOR=$(node -p '+${{ steps.coverage.outputs.coverage }} >= 95 ? `green` : +${{ steps.coverage.outputs.coverage }} >= 50 ? `orange` : `red`')
+        echo "color=$COLOR" >> $GITHUB_OUTPUT
 
     - name: Checkout gh-pages
       uses: actions/checkout@v4
       with:
         ref: gh-pages
 
-    - name: Create Badges
-      shell: bash
-      run: |
-        npm i -g badgen-cli
-        export COV=${{ steps.get-values.outputs.coverage }}
-        COLOR=$(node -p '+process.env.COV >= 95 ? `green` : `orange`')
-        mkdir -p badges
-        badgen -j coverage -s $COV% -c $COLOR > badges/coverage${{ inputs.version && format('-{0}', inputs.version) }}.svg
+    - name: Generate badge
+      id: badge
+      uses: emibcn/badge-action@v2.0.3
+      with:
+        label: 'coverage'
+        color: ${{ steps.color.outputs.color }}
+        status: "${{ format('{0}%', steps.coverage.outputs.coverage) }}"
+        path: "badges/coverage${{ inputs.version && format('-{0}', inputs.version) }}.svg"
 
-    - name: Deploy Badges
+    - name: Deploy Badge to gh-pages
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        commit_message: "Update badges [skip ci]"
+        commit_message: 'Update badge [skip ci]'
         branch: gh-pages
         skip_fetch: true
         skip_checkout: true

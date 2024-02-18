@@ -4,7 +4,7 @@ This action lets you generate a code coverage badge to your GitHub-pages, for ea
 
 ## Fork information
 
-This is a fork of [we-cli/coverage-badge-action](https://github.com/we-cli/coverage-badge-action), with added features, and updated dependencies.
+This is a fork of [we-cli/coverage-badge-action](https://github.com/we-cli/coverage-badge-action), with added features, and updated dependencies. But mostly it's for me to learn about GitHub actions.
 
 ## Usage
 
