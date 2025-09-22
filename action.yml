@@ -20,7 +20,7 @@ runs:
       id: coverage
       shell: bash
       run: |
-        COVERAGE=$(node -p 't=require(`./coverage/coverage-summary.json`).total,Math.min(...`lines|statements|functions|branches`.split(`|`).map(k=>t[k].pct))')
+        COVERAGE=$(node -p 't=require(`./coverage/coverage-summary.json`).total,Math.min(...[`lines`,`functions`,`branches`].map(k=>t[k].pct))')
         echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
 
     - name: Get color
